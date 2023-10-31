@@ -15,7 +15,7 @@ export default defineConfig({
       cert: fs.readFileSync('./localhost.pem'),
     },
     secure: true,
-    host: 'develop.zarbo.works',
+    //host: 'develop.zarbo.works',
     port: 8080,
   },
 })
