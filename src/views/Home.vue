@@ -1,18 +1,20 @@
-
 <template>
-   <div id="myContainer"></div>
-  <button type="button" @click="search">Список коллекции</button>
-  <button type="button" @click="searchProduct">Продукты</button>
-  <button type="button" @click="searchMaterial">Материал</button>
-  <button type="button" @click="searchVidjet">Виджет</button>
-  <button type="button" @click="createVidjet">Создание виджета</button>
-  
- <div class="wrapperButton">
-  <div id="key"></div>
-  <div id="product"></div>
-  <div id="material"></div>
- </div>
+  <div class="wrapper">
+    <div class="wrapperButton">
+        <button type="button" @click="search">Список коллекции</button>
+        <button type="button" @click="searchProduct">Продукты</button>
+        <button type="button" @click="searchMaterial">Материал</button>
+        <button type="button" @click="searchVidjet">Виджет</button>
+        <button type="button" @click="createVidjet">Создание виджета</button>
+      <div class="createButton">
+        <button v-for="item in сollection" id="key" @click="selectCollection(item)">{{ item.name }}</button>
+        <button v-for="item in nameProducts" id="product" @click="selectProduct(item)">{{ item.name }}</button> 
+        <button v-for="item in nameMaterial" id="material" @click="selectMaterial(item)">{{ item.name }}</button> 
+      </div>
 
+    </div>
+    <div id="myContainer"></div>
+  </div>
 </template>
 
 
@@ -20,12 +22,13 @@
 export default {
   data() {
     return {
-      //collections: [],
-      selectedCollection: "",
-      selectedMaterial: "",
-      selectedVidjet: "",
+      сollection: [],
+      selectedCollection: [],
+      nameProducts: [],
+      selectedMaterial: [],
+      nameMaterial: [],
+      selectedVidjet: [],
       selectedUuid: [],
-      google: [],
     }
   },
 methods: {
@@ -38,34 +41,16 @@ methods: {
           Authorization: "Api-Key UURjJ3ez.7inOMuZnHNZyochLX8sapyRuuAsk5gc6"
         }
       })
-      .then(response => {
-        let self = this;
-        function buttonClick(key) {
-          self.selectedCollection = key;
-          console.log("Нажата первая кнопка: " + key);
-        }
-        let idCounter = 1;
-        for (let i = 0; i <= response.data.length - 1; i++) {
-          this.collections = response.data[i];
-          //console.log(this.collections);
-          // this.collection = response.data.map(item => item.key);
-          // console.log(this.collection)
-          let key = document.createElement("button");
-          key.innerText = this.collections.name;
-          key.setAttribute("id", "my-button_" + idCounter);
-          key.addEventListener("click", function() {
-            buttonClick(response.data[i].key);
+      .then((response) => {
+        this.selectedCollection = response.data.map(item => item.key);
+        console.log(response.data)
+         this.сollection = response.data 
+         let elem = document.querySelectorAll('#key');
+         elem.forEach(elem => {
+            elem.style.display  = 'inline';
           });
-          let homeElement = document.getElementById("key");
-          homeElement.appendChild(key);
-          idCounter++;
-          //console.log(this.keyColl)
-        }
-      })
-      .catch(error => {
-        console.error(error);
-      });
-  },
+          });
+    },
   searchProduct() {
     let url = `https://api.dev.zarbo.works/api/v1/products/?collections=${this.selectedCollection}`;
     this.$axios
@@ -75,29 +60,31 @@ methods: {
         }
       })
       .then(response => {
-        let numCounter = 1;
-        console.log(response.data.results)
-        let self2 = this;
-          function buttonClickProduct(id) {
-            self2.selectedMaterial = id;
-            console.log("Нажата вторая кнопка: " + id);
-          }
-        for (let i = 0; i <= response.data.results.length - 1; i++) {
-          this.materials = response.data.results[i]
-          this.selectedUuid = response.data.results
-          //console.log(this.selectedUuid)
-          //this.selectedUuid
-          let mat = document.createElement("button");
-          mat.innerText = this.materials.name;
-          mat.setAttribute("id", "button_" + numCounter);
-          mat.addEventListener("click", function() {
-            buttonClickProduct(response.data.results[i].id);
+        let elem = document.querySelectorAll('#key');
+         elem.forEach(elem => {
+            elem.style.display  = 'none ';
           });
-          let homeElement = document.getElementById("product");
-          homeElement.appendChild(mat);
-          numCounter++;
-        }
-        console.log(this.selectedUuid)
+          this.nameProducts = response.data.results
+          this.selectedUuid = response.data.results.map(item => item.uuid);
+          console.log(this.selectedUuid)
+          this.selectedMaterial = response.data.results.map(item => item.id);
+          console.log(this.selectedMaterial)
+         console.log(response.data.results)
+        // let buttonClickProduct = (id) =>{
+        //     this.selectedUuid = response.data.results[i].uuid
+        //     this.selectedMaterial = id;
+        //     console.log("Нажата вторая кнопка: " + id);
+        // }
+        // for (let i = 0; i <= response.data.results.length - 1; i++) {
+        //   this.materials = response.data.results[i]
+        //     buttonClickProduct(response.data.results[i].id);
+        // }
+        //console.log(this.selectedCollection);
+        let item = document.querySelectorAll('#product');
+         item.forEach(item => {
+            item.style.display  = 'inline';
+          });
+
 
       })
       .catch(error => {
@@ -113,32 +100,35 @@ methods: {
         }
       })
       .then(response => {
-        let numCount = 1;
-        console.log(response.data.results)
-        let self3 = this;
-          function buttonClickMaterial(id) {
-            self3.selectedVidjet = id;
-            console.log("Нажата третья кнопка: " + id);
-          }
-        for (let i = 0; i <= response.data.results.length - 1; i++) {
-          this.materials = response.data.results[i]
-
-          let mat = document.createElement("button");
-          mat.innerText = response.data.results[i].quality.name;
-          mat.setAttribute("id", "button_" + numCount);
-          mat.addEventListener("click", function() {
-            buttonClickMaterial(response.data.results[i].product_id);
+        let item = document.querySelectorAll('#product');
+         item.forEach(item => {
+            item.style.display  = 'none ';
           });
-          let homeElement = document.getElementById("material");
-          homeElement.appendChild(mat);
-          numCount++;
-        }
-        console.log(this.selectedMaterial)
+
+        console.log(response.data.results)
+        this.nameMaterial = response.data.results.map(item => item.quality)
+          this.selectedVidjet = response.data.results.map(item => item.product_id);
+          console.log(this.nameMaterial)
+         console.log(this.selectedVidjet)
+
+        console.log(this.selectedUuid)
       
       })
       .catch(error => {
         console.error(error);
       });
+  },
+  selectCollection (item) {
+      this.selectedCollection = item.key;
+      console.log('Нажата первая кнопка:', item.key);
+  },
+  selectProduct (id) {
+    this.selectedMaterial = id.id
+    console.log("Нажата вторая кнопка: " + id.id);
+  },
+  selectMaterial(id) {
+    this.selectedVidjet = id.id;
+    console.log("Нажата третья кнопка: " + id.id);
   },
   searchVidjet(){
     let url = `https://api.dev.zarbo.works/api/v1/widgets/?product=${this.selectedMaterial}`
@@ -159,7 +149,7 @@ methods: {
       }
       for (let i = 0; i <= response.data.results.length - 1; i++) {
         this.widget = response.data;
-        this.materials = this.widget.results[i]
+        this.materials = this.widget.results
         // console.log(this.materials)
        // console.log(response.data)
         let mat = document.createElement("button");
@@ -172,12 +162,13 @@ methods: {
         let homeElement = document.getElementById("material");
         homeElement.appendChild(mat);
         numCount++;
+        console.log(this.widget);
       }
       console.log(this.selectedCollection)
       console.log(this.selectedMaterial)
       console.log(this.selectedVidjet)
-      console.log(this.selectedUuid[0].uuid)
-      console.log(this.google);
+      console.log(this.selectedUuid)
+
     })
     .catch(error => {
       console.error(error);
@@ -187,12 +178,11 @@ methods: {
 
     
   let iframeElement = document.createElement('iframe');
-  iframeElement.src = `https://api.dev.zarbo.works/${this.selectedUuid[0].uuid}/1608/?materialCode=ыва`; //8b1654f6-da14-4f0b-a609-56b70f3325e2 
+  iframeElement.src = `https://embed.dev.zarbo.works/10044810-b8c8-482f-a3e5-6e3b1728aebf/1693/?materialCode=ыыва`; //${this.selectedUuid} 8b1654f6-da14-4f0b-a609-56b70f3325e2 
   iframeElement.allowFullscreen = true;
   iframeElement.allow = 'camera; autoplay; xr-spatial-tracking';
   //iframeElement.frameBorder = 0;
   console.log(this.selectedUuid)
-  console.log(this.google)
   // Вставьте iframe в нужное место в коде
   
   // Например, чтобы вставить iframe внутрь элемента с id="myContainer":
@@ -204,78 +194,26 @@ methods: {
 </script>
 
 <style>
-#key {
-  color: red;
-  margin: 15px;
+#myContainer{
+  width: 70%;
+  height: 100%;
+}
+.wrapper{
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.wrapperButton{
+  width: 30%;
+  height: 100%;
+}
+.createButton button{
+  background-color: aliceblue;
+  color: black;
+  display: inline;
+  margin: 5px;
+  padding: 3px 5px;
 }
 </style>
-<!-- export default {
-  data() {
-    return {
-      collections: [],
-      google: [],
-    }
-  },
-  methods: {
-    searchProduct() {
-  const url = `https://api.dev.zarbo.works/api/v1/collections/`;
-  const productUrl = "https://api.dev.zarbo.works/api/v1/products/?collections=${selectedCollection}";
-
-  const searchCollections = async () => {
-    try {
-      const response = await this.$axios.get(url, {
-        headers: {
-          Authorization: "Api-Key UURjJ3ez.7inOMuZnHNZyochLX8sapyRuuAsk5gc6"
-        }
-      });
-
-      let selectedCollection = "";
-
-      function buttonClick(key) {
-        console.log("Нажата кнопка: " + key);
-        selectedCollection = key;
-      }
-
-      let idCounter = 1;
-
-      for (let i = 0; i <= response.data.length - 1; i++) {
-        this.collections = response.data[i];
-        console.log(this.collections);
-        this.keyColl = this.collections.key;
-        this.collection = response.data.map(item => item.key);
-
-        this.nameKey = this.collections.name;
-        let key = document.createElement("button");
-        key.innerText = this.nameKey;
-        key.setAttribute("id", "my-button_" + idCounter);
-        key.addEventListener("click", function() {
-          buttonClick(response.data[i].key);
-        });
-        let homeElement = document.getElementById("home");
-        homeElement.appendChild(key);
-        idCounter++;
-      }
-      
-      await searchProduct(productUrl + selectedCollection);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const searchProduct = async (productUrl) => {
-    try {
-      const response = await this.$axios.get(productUrl, {
-        headers: {
-          Authorization: "Api-Key UURjJ3ez.7inOMuZnHNZyochLX8sapyRuuAsk5gc6"
-        }
-      });
-
-      console.log(response.data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  searchCollections();
-}
-  }} -->

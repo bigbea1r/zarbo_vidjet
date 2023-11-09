@@ -72,9 +72,9 @@ button:focus-visible {
 #app {
   width: 100%;
   height: 100%;
-  max-width: 1280px;
+  /* max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 2rem; */
   text-align: center;
 }
 
@@ -156,7 +156,6 @@ body{
 #myContainer{
   width: 80vw;
   height: 50vh;
-  background-color: #ff0000;
   color: #1a1a1a;
 }
 iframe{
